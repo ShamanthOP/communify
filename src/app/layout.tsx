@@ -8,8 +8,9 @@ import React from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-    title: "Streamz",
-    description: "Dive into a world of endless content streams",
+    title: "Communify",
+    description:
+        "Join, engage, and collaborate with like-minded individuals in diverse communities.",
 };
 
 export default function RootLayout({

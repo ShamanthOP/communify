@@ -50,7 +50,7 @@ const UserAccountNav: React.FC<UserAccountNavProps> = ({ user }) => {
                     <Link href={"/"}>Feed</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href={"/s/create"}>Create community</Link>
+                    <Link href={"/c/create"}>Create community</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href={"/settings"}>Settings</Link>
