@@ -28,6 +28,7 @@ model Account {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -36,6 +37,8 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
@@ -47,4 +50,110 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+
+    Post               Post[]
+    Comment            Comment[]
+    CommentVote        CommentVote[]
+    Vote               Vote[]
+    Membership         Membership[]
+    createdCommunities Community[]   @relation("CreatedBy")
+}
+
+model Community {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    posts     Post[]
+
+    creatorId String?
+    creator   User?        @relation("CreatedBy", fields: [creatorId], references: [id])
+    members   Membership[]
+
+    @@index([name])
+    @@index([creatorId])
+}
+
+model Post {
+    id        String   @id @default(cuid())
+    title     String
+    content   Json?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    community   Community @relation(fields: [communityId], references: [id])
+    communityId String
+
+    author   User   @relation(fields: [authorId], references: [id])
+    authorId String
+
+    comments Comment[]
+    votes    Vote[]
+
+    @@index([communityId])
+    @@index([authorId])
+}
+
+model Membership {
+    user        User      @relation(fields: [userId], references: [id])
+    userId      String
+    community   Community @relation(fields: [communityId], references: [id])
+    communityId String
+
+    @@id([userId, communityId])
+    @@index([userId])
+    @@index([communityId])
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    text      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    author   User   @relation(fields: [authorId], references: [id])
+    authorId String
+
+    post   Post   @relation(fields: [postId], references: [id])
+    postId String
+
+    replyToId String?
+    replyTo   Comment?  @relation("ReplyTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    replies   Comment[] @relation("ReplyTo")
+
+    votes     CommentVote[]
+    commentId String?
+
+    @@index([authorId])
+    @@index([postId])
+    @@index([replyToId])
+}
+
+enum VoteType {
+    UP
+    DOWN
+}
+
+model Vote {
+    user   User     @relation(fields: [userId], references: [id])
+    userId String
+    post   Post     @relation(fields: [postId], references: [id])
+    postId String
+    type   VoteType
+
+    @@id([userId, postId])
+    @@index([userId])
+    @@index([postId])
+}
+
+model CommentVote {
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    comment   Comment  @relation(fields: [commentId], references: [id])
+    commentId String
+    type      VoteType
+
+    @@id([userId, commentId])
+    @@index([userId])
+    @@index([commentId])
 }
