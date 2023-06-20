@@ -2,23 +2,60 @@
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useCustomToast } from "@/hooks/useCustomToast";
+import { toast } from "@/hooks/useToast";
+import { CreateCommunityPayload } from "@/lib/validators/community";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function CommunityCreationPage() {
     const router = useRouter();
+    const { loginToast } = useCustomToast();
     const [input, setInput] = useState("");
 
-    // const {} = useMutation({
-    //     mutationFn: async () => {
-    //         const payload = {
+    const { mutate: createCommunity, isLoading } = useMutation({
+        mutationFn: async () => {
+            const payload: CreateCommunityPayload = {
+                name: input,
+            };
+            const { data } = await axios.post("/api/community", payload);
+            return data as string;
+        },
+        onError: (error) => {
+            if (error instanceof AxiosError) {
+                if (error.response?.status === 409) {
+                    return toast({
+                        title: "Community with this name already exists.",
+                        description:
+                            "Please choose a different Community name.",
+                        variant: "destructive",
+                    });
+                }
+                if (error.response?.status === 422) {
+                    return toast({
+                        title: "Invalid Community name.",
+                        description:
+                            "Please choose a name between 3 and 21 characters.",
+                        variant: "destructive",
+                    });
+                }
+                if (error.response?.status === 401) {
+                    return loginToast();
+                }
+            }
 
-    //         }
-    //         const {data} = await axios.post("/api/community", payload)
-    //     }
-    // })
+            toast({
+                title: "Something went wrong.",
+                description: "Could not create a new community.",
+                variant: "destructive",
+            });
+        },
+        onSuccess: (data) => {
+            router.push(`/c/${data}`);
+        },
+    });
 
     return (
         <div className="container flex items-center h-full max-w-3xl mx-auto">
@@ -54,7 +91,13 @@ export default function CommunityCreationPage() {
                     <Button variant={"subtle"} onClick={() => router.back()}>
                         Cancel
                     </Button>
-                    <Button>Create Community</Button>
+                    <Button
+                        isLoading={isLoading}
+                        disabled={input.length === 0}
+                        onClick={() => createCommunity()}
+                    >
+                        Create Community
+                    </Button>
                 </div>
             </div>
         </div>

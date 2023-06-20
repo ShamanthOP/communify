@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import { Toaster } from "@/components/ui/Toaster";
 import React from "react";
+import Providers from "@/components/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,15 +30,17 @@ export default function RootLayout({
             )}
         >
             <body className="min-h-screen pt-12 bg-slate-50 antialiased">
-                <NavBar />
+                <Providers>
+                    <NavBar />
 
-                {authModal}
+                    {authModal}
 
-                <div className="container max-w-7xl mx-auto h-full pt-12">
-                    {children}
-                </div>
+                    <div className="container max-w-7xl mx-auto h-full pt-12">
+                        {children}
+                    </div>
 
-                <Toaster />
+                    <Toaster />
+                </Providers>
             </body>
         </html>
     );
