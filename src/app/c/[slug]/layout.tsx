@@ -106,7 +106,11 @@ export default async function CommunityLayout({
                             ) : null}
 
                             {community.creatorId !== session?.user.id ? (
-                                <SubscribeLeaveToggle />
+                                <SubscribeLeaveToggle
+                                    communityId={community.id}
+                                    communityName={community.name}
+                                    isMember={isMember}
+                                />
                             ) : null}
                         </dl>
                     </div>
