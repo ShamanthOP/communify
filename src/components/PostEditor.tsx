@@ -4,15 +4,22 @@ import { PostCreationPayload, PostValidator } from "@/lib/validators/post";
 import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type EditorJS from "@editorjs/editorjs";
 import { uploadFiles } from "@/lib/uploadthing";
+import { toast } from "@/hooks/useToast";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { usePathname, useRouter } from "next/navigation";
 
 interface PostEditorProps {
     communityId: string;
 }
 
 const PostEditor: React.FC<PostEditorProps> = ({ communityId }) => {
+    const pathname = usePathname();
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
@@ -27,6 +34,14 @@ const PostEditor: React.FC<PostEditorProps> = ({ communityId }) => {
     });
 
     const ref = useRef<EditorJS | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+    const _titleRef = useRef<HTMLTextAreaElement | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setIsMounted(true);
+        }
+    }, []);
 
     const initializeEditor = useCallback(async () => {
         const EditorJS = (await import("@editorjs/editorjs")).default;
@@ -70,7 +85,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ communityId }) => {
 
                                     return {
                                         success: 1,
-                                        files: {
+                                        file: {
                                             url: res.fileUrl,
                                         },
                                     };
@@ -88,18 +103,104 @@ const PostEditor: React.FC<PostEditorProps> = ({ communityId }) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (Object.keys(errors).length) {
+            for (const [_key, value] of Object.entries(errors)) {
+                toast({
+                    title: "Something went wrong.",
+                    description: (value as { message: string }).message,
+                    variant: "destructive",
+                });
+            }
+        }
+    }, [errors]);
+
+    useEffect(() => {
+        const init = async () => {
+            await initializeEditor();
+
+            setTimeout(() => {
+                _titleRef.current?.focus();
+            }, 0);
+        };
+        if (isMounted) {
+            init();
+
+            return () => {
+                ref.current?.destroy();
+                ref.current = null;
+            };
+        }
+    }, [isMounted, initializeEditor]);
+
+    const { mutate: createPost } = useMutation({
+        mutationFn: async ({
+            title,
+            content,
+            communityId,
+        }: PostCreationPayload) => {
+            const payload: PostCreationPayload = {
+                title,
+                content,
+                communityId,
+            };
+            const { data } = await axios.post(
+                "/api/community/post/create",
+                payload
+            );
+            return data;
+        },
+        onError: () => {
+            return toast({
+                title: "Something went wrong:(",
+                description: "Your post was not published, try again later",
+                variant: "destructive",
+            });
+        },
+        onSuccess: () => {
+            const newPathname = pathname.split("/").slice(0, -1).join("/");
+            router.push(newPathname);
+            router.refresh();
+
+            return toast({
+                description: "Your post has been published!",
+            });
+        },
+    });
+
+    const onSubmit = async (data: PostCreationPayload) => {
+        const blocks = await ref.current?.save();
+
+        const payload: PostCreationPayload = {
+            title: data.title,
+            content: blocks,
+            communityId: communityId,
+        };
+
+        createPost(payload);
+    };
+
+    const { ref: titleRef, ...rest } = register("title");
+
     return (
         <div className="w-full p-4 bg-zinc-50 rounded-lg border border-zinc-200">
             <form
                 id="community-post-form"
                 className="w-fit"
-                onSubmit={() => {}}
+                onSubmit={handleSubmit(onSubmit)}
             >
                 <div className="prose prose-stone dark:prose-invert">
                     <TextareaAutosize
+                        ref={(e) => {
+                            titleRef(e);
+                            _titleRef.current = e;
+                        }}
+                        {...rest}
                         placeholder="Title"
                         className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold border-none focus:outline-none focus:shadow-none"
                     />
+
+                    <div id="editor" className="min-h-[500px]" />
                 </div>
             </form>
         </div>
