@@ -62,13 +62,21 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                 if (index === posts.length - 1) {
                     return (
                         <li key={post.id} ref={ref}>
-                            <Post />
+                            <Post
+                                communityName={post.community.name}
+                                post={post}
+                                noOfComments={post.comments.length}
+                            />
                         </li>
                     );
                 } else {
                     return (
                         <li key={post.id}>
-                            <Post />
+                            <Post
+                                communityName={post.community.name}
+                                post={post}
+                                noOfComments={post.comments.length}
+                            />
                         </li>
                     );
                 }
