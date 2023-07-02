@@ -27,6 +27,9 @@ export default async function CommunityPage({ params }: CommunityPageProps) {
                     comments: true,
                     community: true,
                 },
+                orderBy: {
+                    createdAt: "desc",
+                },
                 take: INFINITE_SCROLLING_PAGINATION_RESULTS,
             },
         },

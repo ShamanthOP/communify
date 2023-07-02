@@ -6,7 +6,7 @@ import { useIntersection } from "@mantine/hooks";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Post from "./Post";
 
 interface PostFeedProps {
@@ -27,7 +27,7 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
         ["infinite-query"],
         async ({ pageParam = 1 }) => {
             const query =
-                `api/posts?limit=${INFINITE_SCROLLING_PAGINATION_RESULTS}&page=${pageParam}` +
+                `/api/posts?limit=${INFINITE_SCROLLING_PAGINATION_RESULTS}&page=${pageParam}` +
                 (!!communityName ? `&communityName=${communityName}` : "");
 
             const { data } = await axios.get(query);
@@ -43,6 +43,12 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
             },
         }
     );
+
+    useEffect(() => {
+        if (entry?.isIntersecting) {
+            fetchNextPage();
+        }
+    }, [entry, fetchNextPage]);
 
     const posts = data?.pages.flatMap((page) => page) ?? initialPosts;
 
