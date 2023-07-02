@@ -5,6 +5,7 @@ import { Post, User, Vote } from "@prisma/client";
 import { MessageSquare } from "lucide-react";
 import React, { useRef } from "react";
 import PostEditorOutput from "./PostEditorOutput";
+import PostVoteClient from "./post-vote/PostVoteClient";
 
 interface PostProps {
     communityName: string;
@@ -12,15 +13,29 @@ interface PostProps {
         author: User;
         votes: Vote[];
     };
-    noOfComments: number;
+    numComments: number;
+    numVotes: number;
+    currentVote?: Pick<Vote, "type">;
 }
 
-const Post: React.FC<PostProps> = ({ communityName, post, noOfComments }) => {
+const Post: React.FC<PostProps> = ({
+    communityName,
+    post,
+    numComments,
+    numVotes,
+    currentVote,
+}) => {
     const postRef = useRef<HTMLDivElement>(null);
 
     return (
         <div className="rounded-md bg-white shadow">
             <div className="px-6 py-4 flex justify-between">
+                <PostVoteClient
+                    numInitialVotes={numVotes}
+                    initialVote={currentVote?.type}
+                    postId={post.id}
+                />
+
                 <div className="w-0 flex-1">
                     <div className="max-h-40 mt-1 text-xs text-gray-500">
                         {communityName ? (
@@ -62,8 +77,7 @@ const Post: React.FC<PostProps> = ({ communityName, post, noOfComments }) => {
                     href={`/c/${communityName}/post/${post.id}`}
                     className="w-fit flex items-center gap-2"
                 >
-                    <MessageSquare className="h-4 w-4" /> {noOfComments}{" "}
-                    comments
+                    <MessageSquare className="h-4 w-4" /> {numComments} comments
                 </a>
             </div>
         </div>

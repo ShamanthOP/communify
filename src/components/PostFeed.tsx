@@ -55,7 +55,7 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                     return acc;
                 }, 0);
 
-                const IsVotedByCurrentUser = post.votes.find((vote) => {
+                const isVotedByCurrentUser = post.votes.find((vote) => {
                     return vote.userId === session?.user.id;
                 });
 
@@ -65,7 +65,9 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                             <Post
                                 communityName={post.community.name}
                                 post={post}
-                                noOfComments={post.comments.length}
+                                numComments={post.comments.length}
+                                numVotes={votes}
+                                currentVote={isVotedByCurrentUser}
                             />
                         </li>
                     );
@@ -75,7 +77,9 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                             <Post
                                 communityName={post.community.name}
                                 post={post}
-                                noOfComments={post.comments.length}
+                                numComments={post.comments.length}
+                                numVotes={votes}
+                                currentVote={isVotedByCurrentUser}
                             />
                         </li>
                     );
