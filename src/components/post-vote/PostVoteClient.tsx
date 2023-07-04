@@ -15,7 +15,7 @@ import { toast } from "@/hooks/useToast";
 interface PostVoteClientProps {
     postId: string;
     numInitialVotes: number;
-    initialVote: VoteType | undefined;
+    initialVote: VoteType | undefined | null;
 }
 
 const PostVoteClient: React.FC<PostVoteClientProps> = ({
@@ -82,7 +82,7 @@ const PostVoteClient: React.FC<PostVoteClientProps> = ({
     });
 
     return (
-        <div className="flex flex-col gap-4 sm:gap-0 pr-6 sm:w-20 pb-4 sm:pb-0">
+        <div className="flex sm:flex-col gap-4 sm:gap-0 pr-6 sm:w-20 pb-4 sm:pb-0">
             <Button
                 onClick={() => vote("UP")}
                 size={"sm"}
