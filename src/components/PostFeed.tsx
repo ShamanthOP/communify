@@ -8,6 +8,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useRef } from "react";
 import Post from "./Post";
+import { Loader2 } from "lucide-react";
 
 interface PostFeedProps {
     initialPosts: ExtendedPost[];
@@ -81,6 +82,7 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                     return (
                         <li key={post.id}>
                             <Post
+                                key={post.id}
                                 communityName={post.community.name}
                                 post={post}
                                 numComments={post.comments.length}
@@ -91,6 +93,12 @@ const PostFeed: React.FC<PostFeedProps> = ({ initialPosts, communityName }) => {
                     );
                 }
             })}
+
+            {isFetchingNextPage && (
+                <li className="flex justify-center">
+                    <Loader2 className="w-6 h-6 text-zinc-500 animate-spin" />
+                </li>
+            )}
         </ul>
     );
 };

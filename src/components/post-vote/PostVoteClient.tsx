@@ -32,6 +32,10 @@ const PostVoteClient: React.FC<PostVoteClientProps> = ({
         setCurrentVote(initialVote);
     }, [initialVote]);
 
+    useEffect(() => {
+        setNumVotes(numInitialVotes);
+    }, [numInitialVotes]);
+
     const { mutate: vote } = useMutation({
         mutationFn: async (voteType: VoteType) => {
             const payload: PostVoteRequest = {
@@ -82,7 +86,7 @@ const PostVoteClient: React.FC<PostVoteClientProps> = ({
     });
 
     return (
-        <div className="flex sm:flex-col gap-4 sm:gap-0 pr-6 sm:w-20 pb-4 sm:pb-0">
+        <div className="flex flex-col gap-4 sm:gap-0 pr-6 sm:w-20 pb-4 sm:pb-0">
             <Button
                 onClick={() => vote("UP")}
                 size={"sm"}

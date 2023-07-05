@@ -77,15 +77,14 @@ export default async function Post({ params }: PostPageProps) {
                     <PostEditorOutput
                         content={post?.content ?? cachedPost.content}
                     />
+                    <Suspense
+                        fallback={
+                            <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                        }
+                    >
+                        <CommentsSection postId={post?.id ?? cachedPost.id} />
+                    </Suspense>
                 </div>
-
-                <Suspense
-                    fallback={
-                        <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
-                    }
-                >
-                    <CommentsSection postId={post?.id ?? cachedPost.id} />
-                </Suspense>
             </div>
         </div>
     );
