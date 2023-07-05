@@ -197,7 +197,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ communityId }) => {
                         }}
                         {...rest}
                         placeholder="Title"
-                        className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold border-none focus:outline-none focus:shadow-none"
+                        className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold border-none focus:outline-none focus:shadow-none ring-0 focus:ring-0"
                     />
 
                     <div id="editor" className="min-h-[500px]" />
